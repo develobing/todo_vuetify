@@ -19,19 +19,35 @@
 </template>
 
 <script>
+import db from '@/fb'
+
 export default {
   name: 'Projects',
   data: () => ({
-    projects: [
-      { title: 'Design a new website', person: 'Robin', due: '1st Jul 2019', status: 'ongoing', content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt consequuntur eos eligendi illum minima adipisci deleniti, dicta mollitia enim explicabo fugiat quidem ducimus praesentium voluptates porro molestias non sequi animi!'},
-      { title: 'Code up the homepage', person: 'John', due: '10th Jul 2019', status: 'complete', content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt consequuntur eos eligendi illum minima adipisci deleniti, dicta mollitia enim explicabo fugiat quidem ducimus praesentium voluptates porro molestias non sequi animi!'},
-      { title: 'Design video thumbnails', person: 'Kevin', due: '20th Jun 2018', status: 'complete', content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt consequuntur eos eligendi illum minima adipisci deleniti, dicta mollitia enim explicabo fugiat quidem ducimus praesentium voluptates porro molestias non sequi animi!'},
-      { title: 'Create a community forum', person: 'David', due: '20th Jun 2018', status: 'overdue', content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt consequuntur eos eligendi illum minima adipisci deleniti, dicta mollitia enim explicabo fugiat quidem ducimus praesentium voluptates porro molestias non sequi animi!'}
-    ]
+    projects: []
   }),
   computed: {
     myProjects() {
       return this.projects.filter(project => project.person == 'Robin')
+    }
+  },
+  created() {
+    this.setDb()
+  },
+  methods: {
+    setDb() {
+      db.collection('projects').onSnapshot(res => {
+        const changes = res.docChanges()
+        
+        changes.forEach(change => {
+          if(change.type === 'added') {
+            this.projects.push({
+              id: change.doc.id,
+              ...change.doc.data()
+            })
+          }
+        })
+      })
     }
   }
 }
